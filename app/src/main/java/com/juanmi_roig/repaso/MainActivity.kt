@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         val escudoUrl = "https://github.com/rafapuig/PMDM7N_2024/blob/master/escudos/valencia.png?raw=true"
         /*escudo = findViewById<ImageView>(R.id.escudo)
-        escudo.setImageResource(android.R.drawable.btn_star_big_on)*/
+        escudo.setImageResource(android.R.drawable.btn_star_big_on) */
         Glide.with(binding.escudo)
             .load(escudoUrl)
             .into(binding.escudo)
