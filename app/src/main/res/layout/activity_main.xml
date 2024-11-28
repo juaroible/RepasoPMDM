@@ -12,6 +12,12 @@
         android:id="@+id/recordAudio"
         android:text="Iniciar grabación de audio"/>
 
+    <Button
+        android:id="@+id/selectEquipo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar equipo"/>
+
     <TextView
         android:id="@+id/nombre_equipo"
         android:layout_width="match_parent"

@@ -1,6 +1,9 @@
 package com.juanmi_roig.repaso
 
 import android.Manifest.permission.RECORD_AUDIO
+import android.app.Dialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
@@ -9,7 +12,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -54,6 +60,12 @@ class MainActivity : AppCompatActivity() {
     private fun initListeners() {
         binding.escudo.setOnClickListener { onEscudoClick(it) }
         binding.recordAudio.setOnClickListener { onRecordAudio(it) }
+        binding.selectEquipo.setOnClickListener { onSelectEquipo(it) }
+    }
+
+    fun onSelectEquipo(view: View) {
+        val intent = Intent(this, SelectEquipoActivity::class.java)
+        startActivity(intent)
     }
 
     private fun onEscudoClick(view: View) {
@@ -68,10 +80,15 @@ class MainActivity : AppCompatActivity() {
     private fun isRecordingAudioPermissionGranted() =
         checkSelfPermission(RECORD_AUDIO) == PERMISSION_GRANTED
 
-    private val requestPermissionLauncher =
+    /*private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) { isGranted -> onRequestRecordPermissionResult(isGranted) }
+        ) { isGranted -> onRequestRecordPermissionResult(isGranted) }*/
+
+    private val requestPermissionLauncher : ActivityResultLauncher<String> =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { onRequestRecordPermissionResult(it) }
 
     private fun requestRecordPermission() {
         //requestPermissions(arrayOf(RECORD_AUDIO), 12345)
@@ -101,14 +118,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Metodo principal para pedir permiso antes de grabar
     private fun onStartRecording() {
+        //Si no tenemos el permiso
         if (!isRecordingAudioPermissionGranted()) {
-            requestRecordPermission()
+            // Si tenemos que explicar pq es necesario el permiso
+            if(shouldShowRequestPermissionRationale(RECORD_AUDIO)) {
+                requestRecordPermissionRationale()
+            } else { //Si no, lo pedimos directamente
+                requestRecordPermission()
+            }
             Toast.makeText(this, "No tienes permiso para grabar audio", Toast.LENGTH_LONG)
                 .show()
         } else {
             startRecording()
         }
+    }
+
+    private fun requestRecordPermissionRationale() {
+        val builder = AlertDialog.Builder(this)
+
+        val dialog = builder.setMessage("El permiso para acceder al microgo es necesario para que la app pueda grabar audio")
+            .setTitle("Permiso de grabación de audio requerido")
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton("Aceptar"
+            ) { _, _ -> requestRecordPermission() }
+            .create()
+
+        dialog.show()
     }
 
     private fun startRecording() {
